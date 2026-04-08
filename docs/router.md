@@ -35,3 +35,23 @@ Nessa chamada, o framework abre localmente o código em:
 
 ### Handler Embutido 404
 Se ele descobrir que a rota (caminho digitado) não tem controller ou que não foi programado tal método ele gera automaticamente respotas `404 Not Found` transformadas em JSON emitindo a notificação exata da falha e gravando no log interno local.
+
+## Exemplo Prático Completo
+
+Imagine as seguintes interações efetuadas pelo FrontEnd via Axios ou mesmo através do Navegador puro:
+
+```text
+GET http://seu-site.local/
+- Chama App\Controllers\Home::index() (Default mapeado no .env)
+
+GET http://seu-site.local/produtos
+- Chama App\Controllers\Produtos::index()
+
+GET http://seu-site.local/produtos/exibir/50
+- Chama App\Controllers\Produtos::exibir(50)
+
+POST http://seu-site.local/api/configuracoes/atualizar
+- Chama App\Controllers\Api\Configuracoes::atualizar()
+```
+
+O legal é que não existe um arquivo massivo de `routes.php` mapeando tudo! O próprio core deduz onde bater por *namespaces* e pastas reais, reduzindo em 90% a verbosidade.

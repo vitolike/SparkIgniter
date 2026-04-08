@@ -4,5 +4,5 @@ return [
     'helpers' => ['url', 'log'],
     'libraries' => ['JWT'],
     'models' => [],
-    'services' => ['userService'],
+    'services' => [],
 ];

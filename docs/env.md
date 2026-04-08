@@ -69,3 +69,37 @@ Exclusivo e necessário se você fizer uso do `app/core/JWT.php` para proteção
 | **JWT_SECRET** | Palavra-chave ou MD5 de validação única usada para encripitar e assinar seus tokens. Jamais utilize um padrão e *nunca envie este dado para o Github*. | **Obrigatório** para rotas trancadas
 | **JWT_EXPIRE** | Duração útil do token de autenticação principal. | **Obrigatório**
 | **JWT_REFRESH_EXPIRE** | Duração útil estendida designada a tokens de refresh de reautenticação. | **Obrigatório**
+
+## Exemplo Prático Completo
+
+Veja como seria o seu arquivo `.env` para rodar na sua máquina local:
+
+```env
+APP_ENV=dev
+LOG_CHANNEL=both
+CORS=*
+DEFAULT_CONTROLLER=Home
+DEFAULT_METHOD=index
+
+DB_DRIVER=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=spark_testes
+DB_USER=postgres
+DB_PASS=minhasenha_local
+
+JWT_SECRET=b7d3x9#0Z1!__MUDAR
+JWT_EXPIRE=3600
+JWT_REFRESH_EXPIRE=86400
+```
+
+E em qualquer lugar do seu código:
+
+```php
+$portaDB = Env::get('DB_PORT', 3306);
+$isDevConfig = Env::get('APP_ENV') === 'dev';
+
+if ($isDevConfig) {
+    echo "Estamos usando a porta " . $portaDB;
+}
+```

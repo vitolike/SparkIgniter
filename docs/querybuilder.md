@@ -205,3 +205,32 @@ $qtd = $db->rowCount();
 // Puxar a instancia raw direta do PDO caso necessário invocar métodos globais dele
 $instancia_pdo = $db->pdo();
 ```
+
+## Exemplo Prático Completo
+
+Se quisermos listar todas as faturas em atraso para um painel com paginação, join com usuário e condições dinâmicas de buscas opcionais que vieram do formulário GET:
+
+```php
+public function pesquisarAtrasos() {
+    $busca_email = $this->input->get('pesquisa_email');
+    
+    // 1. Inicia o molde básico da consulta complexa
+    $this->qb->select('f.*, u.email as cliente_email')
+             ->from('faturas f')
+             ->join('usuarios u', 'f.id_user', '=', 'u.id', 'INNER')
+             ->where(['f.status' => 'PENDENTE'])
+             ->whereOp('f.data_vencimento', '<', date('Y-m-d'));
+             
+    // 2. Acopla um filtro opcional sem quebrar a string primária (Checagem condicional!)
+    if (!empty($busca_email)) {
+        $this->qb->whereLike('u.email', "%$busca_email%");
+    }
+    
+    // 3. Organiza ordenando e buscando no BD o pacote formatado
+    $resultados = $this->qb->order_by('f.data_vencimento', 'ASC')
+                           ->limit(50)
+                           ->get();
+                           
+    var_dump($resultados);
+}
+```

@@ -59,3 +59,26 @@ $this->load->autoload([
    'models' => ['UserModel']
 ]);
 ```
+
+## Full Practical Example
+
+Your framework has the classic MVC structure. But sometimes, your endpoint needs to trigger library or model calls orchestrating them dynamically.
+
+```php
+// app/controllers/ReportController.php
+public function generate() {
+    // 1. Loads a custom library from app/libraries/PdfBuilder.php
+    $this->load->library('PdfBuilder');
+    
+    // 2. Loads a custom BaseModel with live DB injection
+    $this->load->model('SalesModel');
+    
+    // Now the controller can use and pass the data forward
+    $sales_data = $this->SalesModel->listToday();
+    $this->PdfBuilder->write($sales_data);
+    
+    // 3. Uses a simple string helper (app/helpers/text_helper.php)
+    $this->load->helper('text');
+    echo uppercase('report generated successfully!');
+}
+```

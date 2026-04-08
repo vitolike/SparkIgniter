@@ -55,3 +55,32 @@ Destruindo TUDO do cliente sem exceções com purga completa de flags do Servido
 ```php
 $this->session->sess_destroy();
 ```
+
+## Exemplo Prático Completo
+
+Um uso muito comum para sessões de navegação server-side como a nossa é a checagem temporal do usuário, ou exibindo e limpando mensagens de notificação instantâneas conhecidas como Flash Data:
+
+```php
+// app/controllers/PainelController.php
+
+public function index() {
+    // 1. Verifica se alguém está acessando ativamente
+    if (!$this->session->has_userdata('usuario_id')) {
+        // Como o usuário não logou, forçamos ele a voltar pro form e sair
+        redirect('/login');
+    }
+
+    // 2. Se a view renderizada anterior falhou e mandou flash data
+    $alerta = null;
+    if ($this->session->has_userdata('msg_erro')) {
+        $alerta = $this->session->userdata('msg_erro');
+        // Uma vez copiado pra View, removemos para não aparecer ao F5
+        $this->session->unset_userdata('msg_erro');
+    }
+
+    $this->view('painel/home', [
+        'nome' => $this->session->userdata('nome_logado'),
+        'alerta' => $alerta
+    ]);
+}
+```

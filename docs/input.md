@@ -55,3 +55,33 @@ Métodos mágicos para extrair dados sem varrer do $_SERVER:
 - `$this->input->header('Authorization');` -> Busca a Header Customizada sem se importar com Capital Case.
 - `$this->input->isAjax();` -> Booleano sobre Headers de requisição XMLHttpRequest.
 - `$this->input->ip();` -> Filtra e resolve IPs proxied, valid range e IPV4/IPV6 com base em arrays estáticos confiáveis (`trusted_proxies`).
+
+## Exemplo Prático Completo
+
+Imagine uma API que recebe um Payload JSON contendo dados de pagamento e configurações de um usuário:
+
+```php
+public function processarWebhook() {
+    // 1. Checa o Método e Rejeita agressivamente
+    if ($this->input->method() !== 'POST') {
+        $this->response(['erro' => 'Método não permitido'], 405);
+    }
+    
+    // 2. Extraindo Header de validação customizada
+    $assinatura = $this->input->header('X-Stripe-Signature');
+    if (empty($assinatura)) {
+        die('Forbiden');
+    }
+
+    // 3. Pegando o corpo cru (Raw JSON Payload do Webhook)
+    $payload = $this->input->json();
+
+    // 4. Sanitize and Typed Fetching
+    $valor_transacao = $this->input->getFloat('amount'); // Protege type-juggling pra inserções no banco
+    $email_cliente = $this->input->post('customer_email', 'anonimo@site.com', true); // Limpa XSS se vier sujo
+    
+    // Log do IP isolado real (Bypassing possivel Cloudflare)
+    $ip = $this->input->ip();
+    $this->meuService->gravarLog("Webhook recebido de $ip -> Valor: $valor_transacao");
+}
+```

@@ -35,3 +35,23 @@ In this call, the framework locally opens the code at:
 
 ### Built-in 404 Handler
 If it finds out that the route (typed path) has no controller or that such a method was not programmed, it automatically generates `404 Not Found` responses transformed into JSON, emitting the exact logical failure notification and recording it in the local internal log.
+
+## Full Practical Example
+
+Imagine the following interactions executed by the FrontEnd via Axios or even through pure Browser interactions:
+
+```text
+GET http://your-site.local/
+- Calls App\Controllers\Home::index() (Default mapped in .env)
+
+GET http://your-site.local/products
+- Calls App\Controllers\Products::index()
+
+GET http://your-site.local/products/show/50
+- Calls App\Controllers\Products::show(50)
+
+POST http://your-site.local/api/settings/update
+- Calls App\Controllers\Api\Settings::update()
+```
+
+The cool part is that there isn't a massive `routes.php` file mapping everything! The core itself deduces where to hit by real *namespaces* and physical folders, reducing verbosity by 90%.

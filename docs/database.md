@@ -27,3 +27,32 @@ APP_ENV=dev       # em prod erros não serão mostrados ao user
 ```
 
 Se o banco não conseguir conectar e `APP_ENV=dev`, um log será gerado e o sistema morrerá emitindo o HTML do erro. Caso contrário apenas retornará erro interno HTTP 500 em modo de segurança.
+
+## Exemplo Prático Completo
+
+Geralmente, você não precisa invocar a Database por conta própria, pois o Base Controller já possui a instância. Porém, em scripts CRON isolados ou migrações rodando no terminal, você faria assim:
+
+```php
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Core\Database;
+use Core\Env;
+
+// Carrega as credenciais primeiro
+Env::load(__DIR__ . '/.env');
+
+try {
+    // Abre o singleton conectando no BD usando as credenciais do ENV
+    $pdo = Database::getInstance();
+    
+    // Agora podemos usar o PDO limpo:
+    $stmt = $pdo->query("SELECT version() as v");
+    $versao = $stmt->fetch();
+    
+    echo "Conectado no DB Versão: " . $versao['v'];
+
+} catch (PDOException $e) {
+    die("Falha isolada: " . $e->getMessage());
+}
+```

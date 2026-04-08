@@ -44,3 +44,50 @@ public function admin() {
     var_dump($this->user); 
 }
 ```
+
+## Full Practical Example
+
+Below is a real-world example of a `UserController` managing the registration of a user and rendering a view:
+
+```php
+<?php
+
+namespace App\Controllers;
+
+use Core\Controller;
+
+class UserController extends Controller {
+
+    public function __construct() {
+        // Loads model and helper that will be used in all methods
+        $this->load->model('UserModel');
+        $this->load->helper('url');
+    }
+
+    public function register() {
+        // If the request is POST, try to register
+        if ($this->input->method() === 'POST') {
+            $name = $this->input->post('name', '', true);
+            $email = $this->input->post('email', '', true);
+
+            if (!empty($name) && !empty($email)) {
+                $success = $this->UserModel->insert([
+                    'name' => $name,
+                    'email' => $email
+                ]);
+
+                if ($success) {
+                    $this->session->set_userdata('msg', 'Registered successfully!');
+                    redirect('/users/login');
+                }
+            }
+            $error = "Fill all fields!";
+        }
+
+        // Renders the view on the registration screen
+        $this->view('users/register', [
+            'error' => $error ?? null
+        ]);
+    }
+}
+```

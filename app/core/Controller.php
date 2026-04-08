@@ -5,7 +5,7 @@ class Controller {
     protected Input $input;
     protected Loader $load;
     public ?PDO $db;
-    protected DB $qb;
+    protected ?DB $qb = null;
     protected IdGenerator $idGen;
     protected JWT $jwt;
     protected HttpClient $httpClient;
@@ -28,7 +28,7 @@ class Controller {
         
         $this->load = new Loader($this);
         $this->db = Database::getInstance();  // PDO
-        $this->qb = new DB($this->db);        // Query Builder
+        $this->qb = $this->db ? new DB($this->db) : null;        // Query Builder
         $this->load->autoload(self::$autoload);
     }
 

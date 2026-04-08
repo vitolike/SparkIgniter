@@ -205,3 +205,32 @@ $qty = $db->rowCount();
 // Pull the direct raw PDO instance to natively trigger global events inside
 $pdo_instance = $db->pdo();
 ```
+
+## Full Practical Example
+
+If we want to list all overdue invoices for a dashboard with pagination, join with the user, and dynamic optional search conditions that came from a GET form:
+
+```php
+public function searchOverdue() {
+    $email_search = $this->input->get('email_search');
+    
+    // 1. Starts the basic mold of the complex query
+    $this->qb->select('i.*, u.email as client_email')
+             ->from('invoices i')
+             ->join('users u', 'i.id_user', '=', 'u.id', 'INNER')
+             ->where(['i.status' => 'PENDING'])
+             ->whereOp('i.due_date', '<', date('Y-m-d'));
+             
+    // 2. Attaches an optional filter without breaking the primary string (Conditional checking!)
+    if (!empty($email_search)) {
+        $this->qb->whereLike('u.email', "%$email_search%");
+    }
+    
+    // 3. Organizes by sorting and fetching the formatted package from the DB
+    $results = $this->qb->order_by('i.due_date', 'ASC')
+                        ->limit(50)
+                        ->get();
+                           
+    var_dump($results);
+}
+```

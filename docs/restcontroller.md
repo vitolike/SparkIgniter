@@ -52,3 +52,48 @@ public function secret() {
     $this->response(['id' => $this->user['id']]);
 }
 ```
+
+## Exemplo Prático Completo
+
+Imagine uma arquitetura onde o aplicativo FrontEnd (React Native) precisa enviar um pedido e ser cobrado pelo usuário, exigindo os verbos corretos de REST e token ativo:
+
+```php
+<?php
+
+namespace App\Controllers\Api;
+
+use Core\RestController;
+
+class PedidoController extends RestController {
+
+    public function __construct() {
+        parent::__construct();
+        // Nenhuma ação dessa API vai rodar se o Javascript não enviar JWT!
+        $this->require_auth();
+    }
+
+    public function create() {
+        // Força apenas aceitar metodos de Criação
+        $this->require_methods(['POST']);
+        
+        $carrinho_vetor = $this->json(); // Lê cru pra ignorar o $_POST que não existe
+        
+        if (empty($carrinho_vetor)) {
+            $this->response(['erro' => 'Corpo da requisição faltando.'], 400);
+        }
+        
+        // Pega do JWT o usuário logado que solicitou isso e passa pro model com o array da requisição
+        $this->load->model('LojaModel');
+        $sucesso = $this->LojaModel->novoEnvio($this->user['id'], $carrinho_vetor);
+        
+        if ($sucesso) {
+            $this->response([
+                'status' => 'Concluído',
+                'comprovante' => 'OK-2000'
+            ], RestController::HTTP_CREATED); // 201 
+        } else {
+            $this->response(['erro' => 'Falha no processamento'], 500);
+        }
+    }
+}
+```

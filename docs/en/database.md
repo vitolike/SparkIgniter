@@ -27,3 +27,32 @@ APP_ENV=dev       # in prod errors will not be shown to the user
 ```
 
 If the database cannot connect and `APP_ENV=dev`, a log will be generated and the system will die outputting the error HTML. Otherwise, it will just return a 500 HTTP internal error in safe mode.
+
+## Full Practical Example
+
+Usually, you do not need to invoke Database on your own, because the Base Controller already possesses the instance. However, in isolated CRON scripts or migrations running on the terminal, you would do this:
+
+```php
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Core\Database;
+use Core\Env;
+
+// Load the credentials first
+Env::load(__DIR__ . '/.env');
+
+try {
+    // Opens the singleton connecting to the DB using ENV credentials
+    $pdo = Database::getInstance();
+    
+    // Now we can use the clean PDO:
+    $stmt = $pdo->query("SELECT version() as v");
+    $version = $stmt->fetch();
+    
+    echo "Connected to DB Version: " . $version['v'];
+
+} catch (PDOException $e) {
+    die("Isolated failure: " . $e->getMessage());
+}
+```

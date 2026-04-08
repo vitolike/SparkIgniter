@@ -69,3 +69,37 @@ Exclusive and necessary if you make use of `app/core/JWT.php` for protection and
 | **JWT_SECRET** | Keyword or unique validation MD5 used to encrypt and sign your tokens. Never use a standard and *never send this data to Github*. | **Required** for locked routes
 | **JWT_EXPIRE** | Useful life of the main authentication token. | **Required**
 | **JWT_REFRESH_EXPIRE** | Extended useful life assigned to reauthentication refresh tokens. | **Required**
+
+## Full Practical Example
+
+Here's what your `.env` file would look like running on your local machine:
+
+```env
+APP_ENV=dev
+LOG_CHANNEL=both
+CORS=*
+DEFAULT_CONTROLLER=Home
+DEFAULT_METHOD=index
+
+DB_DRIVER=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=spark_tests
+DB_USER=postgres
+DB_PASS=mypassword_local
+
+JWT_SECRET=b7d3x9#0Z1!__CHANGE
+JWT_EXPIRE=3600
+JWT_REFRESH_EXPIRE=86400
+```
+
+And anywhere in your code:
+
+```php
+$dbPort = Env::get('DB_PORT', 3306);
+$isDevConfig = Env::get('APP_ENV') === 'dev';
+
+if ($isDevConfig) {
+    echo "We are using port " . $dbPort;
+}
+```

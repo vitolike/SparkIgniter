@@ -59,3 +59,26 @@ $this->load->autoload([
    'models' => ['UsuarioModel']
 ]);
 ```
+
+## Exemplo Prático Completo
+
+Seu framework tem a estrutura MVC clássica. No entanto, sua View necessita disparar chamadas de biblioteca ou model sem um controller intermediário em um componente específico global.
+
+```php
+// app/controllers/RelatorioController.php
+public function gerar() {
+    // 1. Carrega uma library própria do app/libraries/MontadorPdf.php
+    $this->load->library('MontadorPdf');
+    
+    // 2. Carrega um BaseModel customizado com injeção conectada
+    $this->load->model('VendasModel');
+    
+    // Agora o controller pode usar e passar os dados pra frente
+    $dados_vendas = $this->VendasModel->listarHoje();
+    $this->MontadorPdf->escrever($dados_vendas);
+    
+    // 3. Usa um simples helper de string (app/helpers/texto_helper.php)
+    $this->load->helper('texto');
+    echo maiusculo('relatório gerado com sucesso!');
+}
+```

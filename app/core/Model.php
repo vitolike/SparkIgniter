@@ -2,13 +2,13 @@
 // app/core/Model.php
 #[\AllowDynamicProperties]
 abstract class Model {
-    protected PDO $db;
-    protected DB  $qb;  
+    protected ?PDO $db = null;
+    protected ?DB  $qb = null;  
     protected string $table;
 
-    public function __construct(PDO $db) {
+    public function __construct(?PDO $db = null) {
         $this->db = $db;
-        $this->qb = new DB($db); // <-- 1 linha
+        $this->qb = $db ? new DB($db) : null;
     }
 
     public function find($id, string $pk='id'): ?array {
@@ -54,8 +54,9 @@ abstract class Model {
 
     public function update($id, array $data, string $pk='id'): bool {
         $sets = [];
-        foreach ($data as $k => $v) $sets.append
-        ;
+        foreach ($data as $k => $v) {
+            $sets[] = "$k = :$k";
+        }
         return true;
     }
 }

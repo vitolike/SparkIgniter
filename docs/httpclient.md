@@ -43,3 +43,30 @@ $gateway = $this->httpClient->postJson('https://api.stripe.com/transacao', [
 $this->httpClient->setOption(CURLOPT_HTTPHEADER, ['Autorization: Token123']);
 // Ele fará merge dessa regra com as originais
 ```
+
+## Exemplo Prático Completo
+
+Integrando com uma API do GitHub para buscar os repositórios públicos de um usuário preenchendo um User-Agent necessário:
+
+```php
+public function importarRepos() {
+    $usuario = 'octocat';
+    
+    // O GitHub EXIGE um User Agent e Header Accept correto, usando funções nativas do curl:
+    $this->httpClient->setOption(CURLOPT_USERAGENT, 'SparkIgniter-Backend');
+    $this->httpClient->setOption(CURLOPT_HTTPHEADER, [
+        'Accept: application/vnd.github.v3+json'
+    ]);
+    
+    $response = $this->httpClient->get("https://api.github.com/users/{$usuario}/repos");
+    
+    if ($response['status'] !== 200) {
+        return $this->view('erro', ['msg' => 'Falha na comunicação com o parceiro.']);
+    }
+    
+    // O body já é uma string mas a gente sabe que é JSON, então convertemos pra Array.
+    $lista = json_decode($response['body'], true);
+    
+    $this->view('github_repos', ['meus_repos' => $lista]);
+}
+```

@@ -55,3 +55,32 @@ Destroying EVERYTHING from the client without exceptions with a complete purge o
 ```php
 $this->session->sess_destroy();
 ```
+
+## Full Practical Example
+
+A very common use for server-side navigation sessions like ours is the temporary checking of the user, or displaying and clearing instant notification messages known as Flash Data:
+
+```php
+// app/controllers/DashboardController.php
+
+public function index() {
+    // 1. Checks if someone is actively accessing
+    if (!$this->session->has_userdata('user_id')) {
+        // Since the user has not logged in, we force them to return to the form and exit
+        redirect('/login');
+    }
+
+    // 2. If previous rendered view failed and sent flash data error display
+    $alert = null;
+    if ($this->session->has_userdata('error_msg')) {
+        $alert = $this->session->userdata('error_msg');
+        // Once copied to the View, we remove it so it won't appear on F5
+        $this->session->unset_userdata('error_msg');
+    }
+
+    $this->view('dashboard/home', [
+        'name' => $this->session->userdata('logged_name'),
+        'alert' => $alert
+    ]);
+}
+```

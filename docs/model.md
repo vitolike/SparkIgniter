@@ -51,3 +51,45 @@ $novoId = $model->insert([
 
 ### Atualizando (`update`) *(Work in Progress)*
 > O update cru ainda tem a estrutura básica definida, para updates elaborados priorize usar seu QueryBuilder interno `$this->qb->update(...)`!
+
+## Exemplo Prático Completo
+
+Geralmente criamos métodos customizados no Model que agrupam regras de negócio muito específicas para evitar sujar o Controller, aproveitando o `$this->qb` ativo:
+
+```php
+// app/models/EstoqueModel.php
+namespace App\Models;
+
+use Core\Model;
+
+class EstoqueModel extends Model {
+    protected string $table = 'produtos_estoque';
+
+    // Uma função focada na Model que resolve uma dor de negócio usando o QueryBuilder
+    public function obterItensEmFalta($quantidade_minima = 5) {
+        return $this->qb
+                    ->from($this->table)
+                    ->whereOp('qtd_disponivel', '<', $quantidade_minima)
+                    ->where(['ativo' => 1])
+                    ->order_by('id', 'ASC')
+                    ->get();
+    }
+    
+    // Método para diminuir o estoque que usa raw Queries e Transações PDO via Base Model
+    public function venderItem($id_produto, $qtd_vendida) {
+        // Aproveitando acesso do PDO pra evitar lock da tabela errada
+        $pdo = $this->db;
+        
+        try {
+            $pdo->beginTransaction();
+            $this->qb->setRaw('qtd_disponivel', "qtd_disponivel - $qtd_vendida")
+                     ->update($this->table, ['modificado' => 1], ['id' => $id_produto]);
+            $pdo->commit();
+            return true;
+        } catch (\Exception $e) {
+            $pdo->rollBack();
+            return false;
+        }
+    }
+}
+```

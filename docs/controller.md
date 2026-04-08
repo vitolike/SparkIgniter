@@ -44,3 +44,50 @@ public function admin() {
     var_dump($this->user); 
 }
 ```
+
+## Exemplo Prático Completo
+
+Abaixo um exemplo do mundo real de um `UsuarioController` gerenciando o registro de um usuário e renderizando uma view:
+
+```php
+<?php
+
+namespace App\Controllers;
+
+use Core\Controller;
+
+class UsuarioController extends Controller {
+
+    public function __construct() {
+        // Carrega model e helper que serão usados em todos os métodos
+        $this->load->model('UsuarioModel');
+        $this->load->helper('url');
+    }
+
+    public function cadastrar() {
+        // Se a requisição for POST, tenta registrar
+        if ($this->input->method() === 'POST') {
+            $nome = $this->input->post('nome', '', true);
+            $email = $this->input->post('email', '', true);
+
+            if (!empty($nome) && !empty($email)) {
+                $sucesso = $this->UsuarioModel->insert([
+                    'nome' => $nome,
+                    'email' => $email
+                ]);
+
+                if ($sucesso) {
+                    $this->session->set_userdata('msg', 'Cadastrado com sucesso!');
+                    redirect('/usuarios/login');
+                }
+            }
+            $erro = "Preencha todos os campos!";
+        }
+
+        // Renderiza a view na tela de cadastro
+        $this->view('usuarios/cadastro', [
+            'erro' => $erro ?? null
+        ]);
+    }
+}
+```

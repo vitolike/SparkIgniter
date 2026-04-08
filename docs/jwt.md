@@ -45,3 +45,31 @@ try {
    echo $e->getMessage();
 }
 ```
+
+## Exemplo Prático Completo
+
+Se você tem um aplicativo móvel e ele está efetuando o processo de "Login" pela primeira vez contra o seu Back-End para pegar a chave fixa de navegação:
+
+```php
+public function fazerLogin() {
+    // 1. O app validou email e senha? (Simulação)
+    $email = $this->input->post('email');
+    $senha = $this->input->post('senha');
+    
+    // Model busca no banco...
+    $usuario = $this->db->get_where('usuarios', ['email' => $email])->fetchOne();
+    
+    if ($usuario && password_verify($senha, $usuario['senha_hash'])) {
+        // 2. Transforma as credenciais de sucesso nos Tolkens Seguros
+        $chaves = $this->jwt->issueTokens([
+            'id' => $usuario['id'],
+            'role' => $usuario['tipo_conta']
+        ]);
+        
+        // 3. Devolve pro aplicativo (O app guardará as Strings internamente no telefone)
+        $this->response(['status' => 'logado', 'auth' => $chaves]);
+    }
+    
+    $this->response(['erro' => 'Credenciais Inválidas'], 401);
+}
+```

@@ -43,3 +43,30 @@ $gateway = $this->httpClient->postJson('https://api.stripe.com/transaction', [
 $this->httpClient->setOption(CURLOPT_HTTPHEADER, ['Authorization: Token123']);
 // It will merge this rule with the original ones
 ```
+
+## Full Practical Example
+
+Integrating with a GitHub API to fetch a user's public repositories filling a required User-Agent:
+
+```php
+public function importRepos() {
+    $username = 'octocat';
+    
+    // GitHub REQUIRES a User Agent and correct Accept Header, using native curl functions:
+    $this->httpClient->setOption(CURLOPT_USERAGENT, 'SparkIgniter-Backend');
+    $this->httpClient->setOption(CURLOPT_HTTPHEADER, [
+        'Accept: application/vnd.github.v3+json'
+    ]);
+    
+    $response = $this->httpClient->get("https://api.github.com/users/{$username}/repos");
+    
+    if ($response['status'] !== 200) {
+        return $this->view('error', ['msg' => 'Failed communicating with partner.']);
+    }
+    
+    // The body is already a string but we know it's JSON, so we convert it to Array.
+    $list = json_decode($response['body'], true);
+    
+    $this->view('github_repos', ['my_repos' => $list]);
+}
+```

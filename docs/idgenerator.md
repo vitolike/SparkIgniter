@@ -35,3 +35,26 @@ Retorna Strings codificadas em BASE64 puras _URL_SAFE_ (Sem `+ / =`).
 
 ### `hashShortUrl(int $length = 8)`
 Gera pequenos shorts como encurtadores (Ex: Bitly). Cuidado, não deve ser usado limitadores rigorosos em senhas devido a pequena variação.
+
+## Exemplo Prático Completo
+
+Se você precisar gerar um ID único antes de salvar uma transação e também gerar um token de confirmação aleatório que será enviado por e-mail:
+
+```php
+public function criarTransacao() {
+    // Digamos que a sua Model de Transações use UUID primário e não Inteiro auto-increment...
+    $novo_uuid = $this->idGen->uuid();
+    $token_email = $this->idGen->tokenHex(32); 
+    
+    // Inserindo
+    $this->db->insert('transacoes', [
+        'id'     => $novo_uuid,
+        'valor'  => 500.00,
+        'status' => 'pendente',
+        'token'  => $token_email
+    ]);
+
+    // O token_email (ex: a8b4cdef12...) seria mandado na URL do usuário.
+    // O id (ex: 550e8400-e29b...) será usado em interações com Gateways como Stripe ou Pagar.me.
+}
+```

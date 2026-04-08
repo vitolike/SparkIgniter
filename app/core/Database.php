@@ -4,9 +4,13 @@
 class Database {
     private static ?PDO $instance = null;
 
-    public static function getInstance(): PDO {
+    public static function getInstance(): ?PDO {
         if (self::$instance === null) {
-            $driver = strtolower(Env::get('DB_DRIVER', 'pgsql'));
+            $driver = strtolower(Env::get('DB_DRIVER', ''));
+            if (empty($driver)) {
+                return null;
+            }
+            
             $host = Env::get('DB_HOST', '127.0.0.1');
             $port = Env::get('DB_PORT', $driver === 'mysql' ? '3306' : '5432');
             $db   = Env::get('DB_NAME', 'postgres');

@@ -4,7 +4,7 @@ class Service
 {
     protected Input $input;
     public ?PDO $db;
-    protected DB $qb;
+    protected ?DB $qb = null;
     protected IdGenerator $idGen;
     protected ?array $user = null; // set by auth middleware
     public function __construct() {
@@ -12,7 +12,7 @@ class Service
         $this->input = new Input();
         $this->idGen = new IdGenerator();
         $this->db = Database::getInstance();  // PDO
-        $this->qb = new DB($this->db);        // Query Builder
+        $this->qb = $this->db ? new DB($this->db) : null;        // Query Builder
     }
     
     protected function response($data, int $http_code = self::HTTP_OK): void
@@ -42,8 +42,7 @@ class Service
         if (stripos($accept, 'application/json') !== false || $accept === '' || $accept === '*/*') {
             return 'json';
         }
-        // fallback
-        return $this->defaultFormat;
+        return 'json';
     }
 
 }
