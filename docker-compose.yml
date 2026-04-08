@@ -1,0 +1,16 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: sparkigniter-web:dev   # opcional, mas ajuda
+    container_name: sparkigniter-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+    restart: unless-stopped
+    environment:
+      - APACHE_RUN_USER=www-data
+      - APACHE_RUN_GROUP=www-data
+      - APACHE_LOG_DIR=/var/log/apache2
